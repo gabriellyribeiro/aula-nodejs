@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initialscale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.mi
+n.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.
+js"></script>
+    <style>
+        /* Remove the navbar's default margin-bottom and rounded
+borders */
+        .navbar {
+            margin-bottom: 0;
+            border-radius: 0;
+        }
+
+        /* Set height of the grid so .sidenav can be 100% (adjust as
+needed) */
+        .row.content {
+            height: 450px
+        }
+
+        /* Set gray background color and 100% height */
+        .sidenav {
+            padding-top: 20px;
+            background-color: #f1f1f1;
+            height: 100%;
+        }
+
+        /* Set black background color, white text and some padding */
+        footer {
+            background-color: #555;
+            color: white;
+            padding: 15px;
+        }
+
+        /* On small screens, set height to 'auto' for sidenav and grid
+*/
+        @media screen and (max-width: 767px) {
+            .sidenav {
+                height: auto;
+                padding: 15px;
+            }
+
+            .row.content {
+                height: auto;
+            }
+        }
+    </style>
+    <script>
+        function searchComment() {
+            var idComment = document.getElementById("textId").value;
+
+            if (idComment <= 0) {
+                document.getElementById("textError").innerHTML = "Você precisa selecionar um numero mair que 0";
+            } else {
+                getComment(idComment);
+                document.getElementById("textError").innerHTML = "";
+            }
+        }
+
+        function getComment(id) {
+
+            document.getElementById("divGif").style.display = "";
+            reset();
+            //fatch metodo para consumo de serviços de api
+            fetch(`http://127.0.0.1:3000/alunos/notas/matematica/id/${id}`, {
+                    method: 'GET'
+                })
+                .then(response => response.json()) //converte valor recebido em objeto json
+                .then(json => passJson(json)) //chamando a função passJson e passando o objeto
+                .catch(function (error) {
+                    document.getElementById("textError").innerHTML = "Coloque id que existe";
+                    console.log(error);
+                    document.getElementById("divGif").style.display = "none";
+                })
+
+        }
+
+
+
+        function getAll() {
+            reset();
+            document.getElementById("divGif").style.display = "";
+            //fatch metodo para consumo de serviços de api
+            fetch(`http://127.0.0.1:3000/alunos/notas/matematica/`, {
+                    method: 'GET'
+                })
+                .then(response => response.json()) //converte valor recebido em objeto json
+                .then(json => passJsonMakeTable(json)) //chamando a função passJson e passando o objeto
+        }
+
+        function reset() {
+            document.getElementById("divDetail").style.display = "none";
+            document.getElementById("divTable").style.display = "none";
+        }
+
+        function passJson(json) {
+
+            //Manipulando o DOM para renderizar os objetos 'acessando valores do objeto'
+            document.getElementById("nome").innerHTML = json.Nome;
+            document.getElementById("sobrenome").innerHTML = json.Sobrenome;
+            document.getElementById("idade").innerHTML = json.Idade;
+            document.getElementById("nota").innerHTML = json.Nota;
+            document.getElementById("situacao").innerHTML = json.Situacao;
+
+            document.getElementById("divDetail").style.display = "";
+            document.getElementById("divGif").style.display = "none";
+        }
+
+        function passJsonMakeTable(json) {
+
+            var table = document.getElementById("tblComments");
+            document.getElementById("divTable").style.display = "";
+
+            for (let i = 0; i < json.length; i++) {
+                const element = json[i];
+                table.innerHTML += `<tr>
+                                <td>${json[i].Nome}</td>
+                                <td>${json[i].Sobrenome}</td>
+                                <td>${json[i].Idade}</td>
+                                <td>${json[i].Nota}</td>
+                                <td>${json[i].Situacao}</td>
+                            </tr>`;
+            }
+
+            document.getElementById("divGif").style.display = "none";
+        }
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" datatoggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Instituto brasileiro
+                    de Educação Inovador</a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">Home</a></li>
+                    <li class="active"><a href="exibir.html">Notas de
+                            Matemática</a></li>
+                    <li><a href="#">Projeto</a></li>
+                    <li><a href="#">Contato</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#"><span class="glyphicon glyphiconlog-in"></span> Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid text-center">
+        <div class="row content">
+            <div class="col-sm-2 sidenav">
+                <li><a href="#">Home</a></li>
+                <li class="active"><a href="http://127.0.0.1:3000/alunos/notas/matematica">Notas de Matemática</a>
+                </li>
+                <li><a href="#">Projeto</a></li>
+                <li><a href="#">Contato</a></li>
+            </div>
+            <div class="col-sm-8 text-left">
+                <h1>Notas de Matemática</h1>
+
+                <input id="textId" type="number" placeholder="Selecione um numero">
+                <input type="button" value="Localizar" onclick="searchComment()">
+                <input type="button" value="Localizar Todos (Grid)" onclick="getAll()">
+
+                <p id="textError"></p>
+
+                <div id="divDetail" style="display: none;">
+                    <table class="table table-dark">
+                        <tr>
+                            <th>Nome:</th>
+                            <th>Sobrenome</th>
+                            <th>Idade:</th>
+                            <th>Média:</th>
+                            <th>Situação:</th>
+                        </tr>
+                        <tr>
+                            <td id="nome"></td>
+                            <td id="sobrenome"></td>
+                            <td id="idade"></td>
+                            <td id="nota"></td>
+                            <td id="situacao"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div id="divGif" style="display: none;position: absolute; top: 30%; left:10%">
+                    <img src="giphy.gif" />
+                </div>
+
+                <div id="divTable" style="display: none;">
+                    <table class="table table-dark" id="tblComments">
+                        <tr>
+                            <th>Nome:</th>
+                            <th>Sobrenome</th>
+                            <th>Idade:</th>
+                            <th>Média:</th>
+                            <th>Situação:</th>
+                        </tr>
+                    </table>
+
+                </div>
+                <div class="col-sm-2 sidenav">
+                </div>
+            </div>
+        </div>
+</body>
+
+</html>
